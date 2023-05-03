@@ -11,15 +11,15 @@ datasource db {
 }
 
 model Recipe {
-  id             Int @id @default(autoincrement())
-  name           String
+  id             Int    @id @default(autoincrement())
+  name           String @unique
   cost           Cost[]
   product_recipe ProductRecipe[]
 }
 
 model Item {
   id      Int    @id @default(autoincrement())
-  name    String
+  name    String @unique
   cost    Cost[]
   product Product[]
 }
