@@ -23,9 +23,15 @@ type ItemList = {
   name: string;
 };
 
+type RecipeList = {
+  id: number;
+  name: string;
+};
+
 export default function Recipe() {
   const [selectedItem, setSelectedItem] = useState("");
   const [searchItemQuery, setSearchItemQuery] = useState("");
+  const [recipeList, setRecipeList] = useState<RecipeList[]>([]);
   const [itemList, setItemList] = useState<ItemList[]>([]);
   const [inCount, setInCount] = useState<InCount>({ num: [1] });
   const [outCount, setOutCount] = useState<OutCount>({ num: [1] });
@@ -107,7 +113,14 @@ export default function Recipe() {
     fetch('/api/item/read')
       .then((res) => res.json())
       .then((json) => setItemList(json.body))
+
+    fetch('/api/recipe/read')
+      .then((res) => res.json())
+      .then((json) => setRecipeList(json.body))
   }, []);
+
+  console.log(itemList);
+  console.log(recipeList);
 
   return (
     <>
@@ -115,21 +128,23 @@ export default function Recipe() {
       <textarea id="recipe-name" onChange={handleTextareaChange} />
 
       <p>入力アイテム</p>
-      {inCount.num.map((value) => (<>
+      {inCount.num.map((value) => (<div key="in-parent">
         <textarea key={"in-name-"+value} id={"in-name-"+value} onChange={handleTextareaChange} />
         <textarea key={"in-amount-"+value} id={"in-amount-"+value} onChange={handleTextareaChange} /><br />
-      </>))}
+      </div>))}
       <button type="button" onClick={clickInPlus}>+</button>
 
       <p>出力アイテム</p>
-      {outCount.num.map((value) => (<>
+      {outCount.num.map((value) => (<div key="out-parent">
         <textarea key={"out-name-"+value} id={"out-name-"+value} onChange={handleTextareaChange} />
         <textarea key={"out-amount-"+value} id={"out-amount-"+value} onChange={handleTextareaChange} /><br />
-      </>))}
+      </div>))}
       <button type="button" onClick={clickOutPlus}>+</button>
 
       <br />
       <button type="button" onClick={submitRecipe}>登録</button>
+
+      {recipeList.map((recipe) => (<p key={recipe.name}><a href={"/recipe/"+recipe.id}>{recipe.name}</a></p>))}
     </>
   );
 }
