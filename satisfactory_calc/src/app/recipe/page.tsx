@@ -4,10 +4,10 @@ import { Combobox } from '@headlessui/react'
 
 type Textarea = {
   recipeName: string;
-  inName: Map<string, string>;
-  inAmount: Map<string, number>;
-  outName: Map<string, string>;
-  outAmount: Map<string, number>;
+  inName: Map<string, string | number>;
+  inAmount: Map<string, string | number>;
+  outName: Map<string, string | number>;
+  outAmount: Map<string, string | number>;
 };
 
 type InCount = {
@@ -32,12 +32,12 @@ export default function Recipe() {
   const [textarea, setTextarea] = useState<Textarea>({
     recipeName: "",
     inName: new Map([["in-name-1", ""]]),
-    inAmount: new Map([["in-amount-1", null]]),
+    inAmount: new Map([["in-amount-1", 0]]),
     outName: new Map([["out-name-1", ""]]),
-    outAmount: new Map([["out-amount-1", null]])
+    outAmount: new Map([["out-amount-1", 0]])
   });
 
-  const setMapObject = (mapObject: Map<string, string | number>, key: string, value: string) => {
+  const setMapObject = (mapObject: Map<string, string | number>, key: string, value: string | number) => {
     mapObject.set(key, value);
     return mapObject;
   }
@@ -127,6 +127,9 @@ export default function Recipe() {
         <textarea key={"out-amount-"+value} id={"out-amount-"+value} onChange={handleTextareaChange} /><br />
       </>))}
       <button type="button" onClick={clickOutPlus}>+</button>
+
+      <br />
+      <button type="button" onClick={submitRecipe}>登録</button>
     </>
   );
 }
