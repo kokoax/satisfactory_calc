@@ -26,15 +26,12 @@ export default function Item() {
   }
 
   const getItemAll = () => {
-    return fetch('/api/item/read')
-  };
-
-  const postItemDelete = (id: int) => {
-    fetch
+    return fetch('/api/item/read');
   };
 
   const handleDeleteClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    return await fetch('/api/item/delete/' + event.target.id, {
+    const { name } = event.target as HTMLInputElement;
+    return await fetch('/api/item/delete/' + name, {
       method: 'POST',
     });
   };
@@ -55,11 +52,9 @@ export default function Item() {
     }
 
     const itemAllResponse = getItemAll();
-    if(itemAllResponse.ok) {
-      itemAllResponse
-        .then(r => r.json())
-        .then(j => setItemList(j.body));
-    }
+    itemAllResponse
+      .then(r => r.json())
+      .then(j => setItemList(j.body));
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -86,7 +81,7 @@ export default function Item() {
             itemList.map((value) =>
               (
                 <li key={value.name}>
-                  {value.name} <button onClick={handleDeleteClick} key={value.id} id={value.id}>Delete</button>
+                  {value.name} <button onClick={handleDeleteClick} key={value.id} id={String(value.id)}>Delete</button>
                 </li>
               )
             )
