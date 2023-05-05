@@ -81,10 +81,6 @@ export default function Recipe() {
   };
 
   const submitRecipe = () => {
-    console.log(textarea);
-    console.log(inCount);
-    console.log(outCount);
-
     fetch('/api/recipe/create', {
       method: "POST",
       headers: {
@@ -119,25 +115,22 @@ export default function Recipe() {
       .then((json) => setRecipeList(json.body))
   }, []);
 
-  console.log(itemList);
-  console.log(recipeList);
-
   return (
     <>
       <p>name</p>
       <textarea id="recipe-name" onChange={handleTextareaChange} />
 
       <p>入力アイテム</p>
-      {inCount.num.map((value) => (<div key="in-parent">
-        <textarea key={"in-name-"+value} id={"in-name-"+value} onChange={handleTextareaChange} />
-        <textarea key={"in-amount-"+value} id={"in-amount-"+value} onChange={handleTextareaChange} /><br />
+      {inCount.num.map((value) => (<div key={"in-parent"+value}>
+        <textarea id={"in-name-"+value} onChange={handleTextareaChange} />
+        <textarea id={"in-amount-"+value} onChange={handleTextareaChange} /><br />
       </div>))}
       <button type="button" onClick={clickInPlus}>+</button>
 
       <p>出力アイテム</p>
-      {outCount.num.map((value) => (<div key="out-parent">
-        <textarea key={"out-name-"+value} id={"out-name-"+value} onChange={handleTextareaChange} />
-        <textarea key={"out-amount-"+value} id={"out-amount-"+value} onChange={handleTextareaChange} /><br />
+      {outCount.num.map((value) => (<div key={"out-parent"+value}>
+        <textarea id={"out-name-"+value} onChange={handleTextareaChange} />
+        <textarea id={"out-amount-"+value} onChange={handleTextareaChange} /><br />
       </div>))}
       <button type="button" onClick={clickOutPlus}>+</button>
 

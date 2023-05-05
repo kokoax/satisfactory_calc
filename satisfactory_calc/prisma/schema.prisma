@@ -27,10 +27,10 @@ model Item {
 model Cost {
   id        Int    @id @default(autoincrement())
   recipe_id Int
-  recipe    Recipe @relation(fields: [recipe_id], references: [id])
+  recipe    Recipe @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
   item_id   Int
   item      Item   @relation(fields: [item_id], references: [id])
-  amount    Int
+  amount    Float
   in_out    String
 }
 
@@ -39,7 +39,7 @@ model Product {
   name    String
   item_id Int
   item    Item   @relation(fields: [item_id], references: [id])
-  amount  Int
+  amount  Float
   product_recipe ProductRecipe[]
 }
 
