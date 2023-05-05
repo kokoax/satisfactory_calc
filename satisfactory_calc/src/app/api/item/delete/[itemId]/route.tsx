@@ -14,7 +14,7 @@ export async function POST(request: Request, { params }: Props) {
   const { itemId } = params
 
   await prisma.item.delete({where: {
-      id: parseInt(itemId)
+      id: Number(itemId)
     },
   });
 
