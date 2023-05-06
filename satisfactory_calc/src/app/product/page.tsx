@@ -1,84 +1,129 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from "react";
+import dagre from 'dagre';
+import ReactFlow from "react-flow-renderer";
 
-export default function Item() {
-  const [formData, setFormData] = useState<FormData>({itemName: ''});
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [itemList, setItemList] = useState<ItemList[]>([]);
+import { MenuNodeInput, MenuNodeDefault, MenuNodeOutput } from "@/app/component/reactflow/nodetype/MenuNode";
 
-  const postItemCreate = async (formData: FormData) => {
-    return await fetch('/api/item/create', {
-      method: 'POST',
-      headers: {
-        'Contents-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
-  }
+type Item = {
+  id: number;
+  name: string;
+};
 
-  const getItemAll = () => {
-    return fetch('/api/item/read');
-  };
+type Recipe = {
+  id: number;
+  name: string;
+};
 
-  const handleDeleteClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const { name } = event.target as HTMLInputElement;
-    return await fetch('/api/item/delete/' + name, {
-      method: 'POST',
-    });
-  };
+type Cost = {
+  id: number;
+  recipe_id: number;
+  recipe: Recipe;
+  item_id: number;
+  item: Item;
+  amount: number;
+  in_out: string;
+};
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    if(formData.itemName == '') {
-      setErrorMessage('not allowed text area empty');
-      return;
-    }
+const nodeTypes = {
+  menuNodeInput: MenuNodeInput,
+  menuNodeDefault: MenuNodeDefault,
+  menuNodeOutput: MenuNodeOutput,
+};
 
 
-    const postItemCreateResponse = await postItemCreate(formData);
-    if(postItemCreateResponse.ok) {
-      console.log('item create success');
-    } else {
-      console.log('item create failed');
-      setErrorMessage('item create failed');
-    }
+export default function Product() {
+  const [itemList, setItemList]     = useState<Item[]>([]);
+  const [recipeList, setRecipeList] = useState<Recipe[]>([]);
+  const [costList, setCostList]     = useState<Cost[]>([]);
+  const [nodes, setNodes]   = useState([]);
+  const [edges, setEdges]   = useState([]);
 
-    const itemAllResponse = getItemAll();
-    itemAllResponse
-      .then(r => r.json())
-      .then(j => setItemList(j.body));
-  }
-
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const {name, value} = event.target;
-    setFormData((prev) => ({...prev, [name]: value}));
+  const getNodes = () => {
+    return nodes;
   };
 
   useEffect(() => {
-    const itemAllResponse = getItemAll();
-    itemAllResponse
-      .then(r => r.json())
-      .then(j => setItemList(j.body));
+    (async () => {
+      const initialItemList = (await (await fetch('/api/item/read')).json()).body;
+      const initialRecipeList = (await (await fetch('/api/recipe/read')).json()).body;
+      const initialCostList = (await (await fetch('/api/cost/read')).json()).body;
+      setItemList(initialItemList);
+      setRecipeList(initialRecipeList);
+      setCostList(initialCostList);
+
+      setNodes([
+        {
+          id: "1",
+          type: "menuNodeInput",
+          data: {
+            id: "1",
+            parent: null,
+            amount: 0,
+            itemName: "",
+            setNodes: setNodes,
+            setEdges: setEdges,
+            itemList: initialItemList,
+            recipeList: initialRecipeList,
+            costList: initialCostList,
+          },
+        }
+      ]);
+    })();
   }, []);
+
+  const dagreGraph = new dagre.graphlib.Graph();
+  const nodeWidth = 300;
+  const nodeHeight = 100;
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  dagreGraph.setGraph({ rankdir: "TB"});
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  nodes.forEach((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    node.targetPosition = 'top';
+    node.sourcePosition = 'bottom';
+
+    node.position = {
+      x: nodeWithPosition.x - nodeWidth / 2,
+      y: nodeWithPosition.y - nodeHeight / 2,
+    };
+  });
+
+  const onSubmit = (event) => {
+    const itemCount = nodes.reduce((acc, cur) => {
+      console.log(cur);
+      console.log(cur.data.itemName);
+      if(acc[cur.data.itemName]){
+        acc[cur.data.itemName] = acc[cur.data.itemName] + cur.data.amount;
+      } else {
+        acc[cur.data.itemName] = cur.data.amount;
+      }
+      return acc;
+    }, {});
+
+    console.log(itemCount);
+  };
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <textarea className={errorMessage ? 'error' : ''} name="itemName" value={formData.itemName} onChange={handleChange}></textarea>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button className="btn btn-blue" type="submit">登録</button>
-        <h1>登録されているアイテム</h1>
-        <ul>
-          {
-            itemList.map((value) =>
-              (
-                <li key={value.name}>
-                  {value.name} <button onClick={handleDeleteClick} key={value.id} id={String(value.id)}>Delete</button>
-                </li>
-              )
-            )
-          }
-        </ul>
-      </form>
+      <button onClick={onSubmit}>登録</button>
+      <div style={{width: "1920px", height: "1080px"}}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+        >
+        </ReactFlow>
+      </div>
     </>
-  )
+  );
 }
