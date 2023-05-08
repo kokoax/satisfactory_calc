@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { Combobox } from '@headlessui/react'
+import ItemDropdown from "@/app/component/Dropdown"
 
 type Textarea = {
   recipeName: string;
@@ -115,6 +116,8 @@ export default function Recipe() {
       .then((json) => setRecipeList(json.body))
   }, []);
 
+  console.log(textarea);
+
   return (
     <>
       <p>name</p>
@@ -122,15 +125,15 @@ export default function Recipe() {
 
       <p>入力アイテム</p>
       {inCount.num.map((value) => (<div key={"in-parent"+value}>
-        <textarea id={"in-name-"+value} onChange={handleTextareaChange} />
-        <textarea id={"in-amount-"+value} onChange={handleTextareaChange} /><br />
+        <ItemDropdown id={"in-name-"+value} onChange={handleTextareaChange} />
+        <input type="number" min="0" id={"in-amount-"+value} onChange={handleTextareaChange} /><br />
       </div>))}
       <button type="button" onClick={clickInPlus}>+</button>
 
       <p>出力アイテム</p>
       {outCount.num.map((value) => (<div key={"out-parent"+value}>
-        <textarea id={"out-name-"+value} onChange={handleTextareaChange} />
-        <textarea id={"out-amount-"+value} onChange={handleTextareaChange} /><br />
+        <ItemDropdown id={"out-name-"+value} onChange={handleTextareaChange} />
+        <input type="number" min="0" id={"out-amount-"+value} onChange={handleTextareaChange} /><br />
       </div>))}
       <button type="button" onClick={clickOutPlus}>+</button>
 
