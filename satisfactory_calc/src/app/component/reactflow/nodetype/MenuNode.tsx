@@ -104,7 +104,7 @@ const MenuNodeInput = memo(function MenuNodeInput({ data, isConnectable }) {
 
   return (
     <>
-      <div style={ { width: "300px", height: "100px", borderRadius: "5px", border: "5px solid #000" } }>
+      <div style={ { width: "220px", height: "88px", borderRadius: "5px", border: "5px solid #000" } }>
         <Combobox value={selectedItem} onChange={setSelectedItem}>
           <Combobox.Input placeholder="アイテム名" onChange={(event) => setQueryItem(event.target.value)} />
           <Combobox.Button>
@@ -169,7 +169,7 @@ const MenuNodeDefault = memo(function MenuNodeDefault({ data, isConnectable }) {
 
   return (
     <>
-      <div style={ { width: "300px", height: "100px", borderRadius: "5px", border: "1px solid #eee" } }>
+      <div style={ { width: "220px", height: "88px", borderRadius: "5px", border: "1px solid #eee" } }>
         <Handle
           type="target"
           position={Position.Top}
@@ -207,7 +207,7 @@ const MenuNodeDefault = memo(function MenuNodeDefault({ data, isConnectable }) {
 const MenuNodeOutput = memo(function menuNodeOutput({ data, isConnectable }) {
   return (
     <>
-      <div style={ { width: "172px", height: "32px", borderRadius: "5px", border: "1px solid #eee" } }>
+      <div style={ { width: "220px", height: "88px", borderRadius: "5px", border: "1px solid #eee" } }>
         <Handle
           type="target"
           position={Position.Top}

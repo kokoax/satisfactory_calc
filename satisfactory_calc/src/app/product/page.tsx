@@ -73,8 +73,8 @@ export default function Product() {
   }, []);
 
   const dagreGraph = new dagre.graphlib.Graph();
-  const nodeWidth = 300;
-  const nodeHeight = 100;
+  const nodeWidth = 220;
+  const nodeHeight = 88;
   dagreGraph.setDefaultEdgeLabel(() => ({}));
   dagreGraph.setGraph({ rankdir: "TB"});
 
