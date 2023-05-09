@@ -18,4 +18,18 @@ type Cost = {
   in_out: string;
 };
 
+type NodeData = {
+  id: string;
+  parent: string;
+  amount: number;
+  itemName: string;
+  recipeName: string;
+  setNodes: any;
+  setEdges: any;
+  itemList: Item[];
+  recipeList: Recipe[];
+  costList: Cost[];
+
+};
+
 export { Item, Recipe, Cost };

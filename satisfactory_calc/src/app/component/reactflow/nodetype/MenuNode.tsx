@@ -28,7 +28,7 @@ const getByItemNameFromOutItem = (costList, itemName) => {
   });
 }
 
-const createNewObject = ({id, setNodes, setEdges, itemList, recipeList, costList}, itemName, recipeName, amount) => {
+const createNewObject = ({id, itemList, recipeList, costList}, itemName, recipeName, amount) => {
   const recipe = recipeList.filter((recipe) => recipe.name === recipeName)[0]
   const inItem = getInItemByRecipeId(costList, recipe.id);
   const outItem = getOutItemByRecipeId(costList, recipe.id);
@@ -47,8 +47,7 @@ const createNewObject = ({id, setNodes, setEdges, itemList, recipeList, costList
         parent: id,
         amount: (item.amount / targetItem.amount) * amount,
         itemName: item.name,
-        setNodes: setNodes,
-        setEdges: setEdges,
+        recipeName: recipe.name,
         itemList: itemList,
         recipeList: recipeList,
         costList: costList
@@ -69,7 +68,7 @@ const createNewObject = ({id, setNodes, setEdges, itemList, recipeList, costList
 };
 
 
-const MenuNodeInput = memo(function MenuNodeInput({ data, isConnectable }) {
+const MenuNodeInput = memo(function MenuNodeInput({ data, isConnectable, setNodes, setEdges }) {
   const [selectedItem, setSelectedItem]     = useState<string>("");
   const [queryItem, setQueryItem]           = useState<string>("");
   const [selectedRecipe, setSelectedRecipe] = useState<string>("");
@@ -86,16 +85,17 @@ const MenuNodeInput = memo(function MenuNodeInput({ data, isConnectable }) {
 
   const onSelectedRecipe = (selectedRecipeName) => {
     setSelectedRecipe(selectedRecipeName);
-    data.setNodes((prev) => {
-      prev[0].data.itemName = selectedRecipeName;
-      prev[0].data.amount = amount;
+    setNodes((prev) => {
+      prev[0].data.itemName = selectedItem;
+      prev[0].data.recipeName = selectedRecipeName;
+      prev[0].data.amount = Number(amount);
 
       return [...prev];
-    })
+    });
 
     const { newNodes, newEdges } = createNewObject(data, selectedItem, selectedRecipeName, amount);
-    data.setNodes((prev) => [...prev, ...newNodes]);
-    data.setEdges((prev) => [...prev, ...newEdges]);
+    setNodes((prev) => [...prev, ...newNodes]);
+    setEdges((prev) => [...prev, ...newEdges]);
   };
 
   const onChangeAmount = (event) => {
@@ -106,7 +106,7 @@ const MenuNodeInput = memo(function MenuNodeInput({ data, isConnectable }) {
     <>
       <div style={ { width: "220px", height: "88px", borderRadius: "5px", border: "5px solid #000" } }>
         <Combobox value={selectedItem} onChange={setSelectedItem}>
-          <Combobox.Input placeholder="アイテム名" onChange={(event) => setQueryItem(event.target.value)} />
+          <Combobox.Input placeholder="アイテム名" onChange={ (event) => setQueryItem(event.target.value) } />
           <Combobox.Button>
             <ChevronUpDownIcon
               className="h-5 w-5 text-gray-400"
@@ -123,7 +123,7 @@ const MenuNodeInput = memo(function MenuNodeInput({ data, isConnectable }) {
         </Combobox>
 
         <Combobox value={ selectedRecipe } onChange={ onSelectedRecipe }>
-          <Combobox.Input placeholder="レシピ名" onChange={onChangeAmount} />
+          <Combobox.Input placeholder="レシピ名" onChange={ (event) => setQueryRecipe(event.target.value) } />
           <Combobox.Button>
             <ChevronUpDownIcon
               className="h-5 w-5 text-gray-400"
@@ -151,7 +151,7 @@ const MenuNodeInput = memo(function MenuNodeInput({ data, isConnectable }) {
   );
 });
 
-const MenuNodeDefault = memo(function MenuNodeDefault({ data, isConnectable }) {
+const MenuNodeDefault = memo(function MenuNodeDefault({ data, isConnectable, setNodes, setEdges }) {
   const [selectedRecipe, setSelectedRecipe] = useState<string>("");
   const [queryRecipe, setQueryRecipe] = useState<string>("");
 
@@ -159,8 +159,8 @@ const MenuNodeDefault = memo(function MenuNodeDefault({ data, isConnectable }) {
     setSelectedRecipe(selectedRecipeName);
 
     const { newNodes, newEdges } = createNewObject(data, data.itemName, selectedRecipeName, data.amount);
-    data.setNodes((prev) => [...prev, ...newNodes]);
-    data.setEdges((prev) => [...prev, ...newEdges]);
+    setNodes((prev) => [...prev, ...newNodes]);
+    setEdges((prev) => [...prev, ...newEdges]);
   };
 
   const filteredCost = data.costList.filter((cost) => {

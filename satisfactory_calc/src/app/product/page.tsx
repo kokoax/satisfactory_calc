@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useCallback } from "react";
 import dagre from 'dagre';
-import ReactFlow from "react-flow-renderer";
+import ReactFlow, { useNodesState, useEdgesState, ReactFlowProvider } from "react-flow-renderer";
 
 import { MenuNodeInput, MenuNodeDefault, MenuNodeOutput } from "@/app/component/reactflow/nodetype/MenuNode";
 
@@ -25,23 +25,23 @@ type Cost = {
   in_out: string;
 };
 
-const nodeTypes = {
-  menuNodeInput: MenuNodeInput,
-  menuNodeDefault: MenuNodeDefault,
-  menuNodeOutput: MenuNodeOutput,
-};
-
-
 export default function Product() {
   const [itemList, setItemList]     = useState<Item[]>([]);
   const [recipeList, setRecipeList] = useState<Recipe[]>([]);
   const [costList, setCostList]     = useState<Cost[]>([]);
-  const [nodes, setNodes]   = useState([]);
-  const [edges, setEdges]   = useState([]);
-
-  const getNodes = () => {
-    return nodes;
-  };
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodeTypes, setNodeTypes] = useState({
+    menuNodeInput: (props) => <MenuNodeInput
+      setNodes={ setNodes }
+      setEdges={ setEdges }
+      {...props} />,
+    menuNodeDefault: (props) => <MenuNodeDefault
+      setNodes={ setNodes }
+      setEdges={ setEdges }
+      {...props} />,
+    menuNodeOutput: MenuNodeOutput,
+  });
 
   useEffect(() => {
     (async () => {
@@ -61,8 +61,7 @@ export default function Product() {
             parent: null,
             amount: 0,
             itemName: "",
-            setNodes: setNodes,
-            setEdges: setEdges,
+            recipeName: "",
             itemList: initialItemList,
             recipeList: initialRecipeList,
             costList: initialCostList,
@@ -99,31 +98,39 @@ export default function Product() {
   });
 
   const onSubmit = (event) => {
-    const itemCount = nodes.reduce((acc, cur) => {
-      console.log(cur);
-      console.log(cur.data.itemName);
-      if(acc[cur.data.itemName]){
-        acc[cur.data.itemName] = acc[cur.data.itemName] + cur.data.amount;
-      } else {
-        acc[cur.data.itemName] = cur.data.amount;
-      }
-      return acc;
-    }, {});
-
     console.log(itemCount);
+    const savedNodes = nodes.map((node) => {
+      return {
+        id: node.id,
+        parent: node.data.parent,
+        amount: node.data.amount,
+        itemName: node.data.itemName,
+        recipeName: node.data.recipeName
+      };
+    });
+    const savedEdges = edges.map((edge) => {
+      return {
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        animated: edge.animated
+      };
+    });
   };
 
   return (
     <>
       <button onClick={onSubmit}>登録</button>
-      <div style={{width: "1920px", height: "1080px"}}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-        >
-        </ReactFlow>
-      </div>
+      <ReactFlowProvider>
+        <div style={{width: "1920px", height: "1080px"}}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+          >
+          </ReactFlow>
+        </div>
+      </ReactFlowProvider>
     </>
   );
 }
